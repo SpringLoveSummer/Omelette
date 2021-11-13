@@ -17,10 +17,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class PicsFragment:Fragment(){
-    private val viewModel by lazy { ViewModelProvider(this).get(PicsViewModel::class.java) }
 
-    private val repoAdapter = PicsAdapter()
+    private val viewModel by lazy { ViewModelProvider(this).get(PicsViewModel::class.java) }
     private var refresh = true
+    private val repoAdapter = PicsAdapter()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,8 +38,10 @@ class PicsFragment:Fragment(){
         rv.adapter =
             repoAdapter.withLoadStateFooter(FooterAdapter { repoAdapter.retry() })
         lifecycleScope.launch {
-            viewModel.getPagingData("jandan.get_pic_comments").collect { pagingData ->
-                repoAdapter.submitData(pagingData)
+            arguments?.getString("api")!!.let {
+                viewModel.getPagingData(it).collect { pagingData ->
+                    repoAdapter.submitData(pagingData)
+                }
             }
         }
         sfl.setOnRefreshListener {
@@ -67,4 +70,15 @@ class PicsFragment:Fragment(){
             }
         }
     }
+
+    companion object {
+        fun newInstance(api:String) : PicsFragment {
+            val fragment = PicsFragment()
+            val bundle = Bundle()
+            bundle.putString("api", api)
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
+
 }

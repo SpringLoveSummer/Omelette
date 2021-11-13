@@ -70,8 +70,8 @@ class MainActivity : AppCompatActivity() {
     fun getTabFragment(position: Int): Fragment {
         return when (position) {
             0 -> NewsFragment()
-            1 -> PicsFragment()
-            else -> NewsFragment()
+            1 -> PicsFragment.newInstance("jandan.get_pic_comments")
+            else -> PicsFragment.newInstance("jandan.get_ooxx_comments")
         }
     }
 

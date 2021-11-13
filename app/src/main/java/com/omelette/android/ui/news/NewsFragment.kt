@@ -24,8 +24,9 @@ import kotlinx.coroutines.launch
 
 class NewsFragment:Fragment(){
     private val viewModel by lazy { ViewModelProvider(this).get(NewsViewModel::class.java) }
-
+    private var refresh = true
     private val repoAdapter = NewsAdapter()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,18 +46,25 @@ class NewsFragment:Fragment(){
                 repoAdapter.submitData(pagingData)
             }
         }
-
+        sfl.setOnRefreshListener {
+            refresh = false
+            repoAdapter.refresh()
+        }
         repoAdapter.addLoadStateListener {
             when (it.refresh) {
                 is LoadState.NotLoading -> {
+                    sfl.isRefreshing = false
                     pb.visibility = View.INVISIBLE
                     rv.visibility = View.VISIBLE
                 }
                 is LoadState.Loading -> {
-                    pb.visibility = View.VISIBLE
-                    rv.visibility = View.INVISIBLE
+                    if (refresh) {
+                        pb.visibility = View.VISIBLE
+                        rv.visibility = View.INVISIBLE
+                    }
                 }
                 is LoadState.Error -> {
+                    sfl.isRefreshing = false
                     val state = it.refresh as LoadState.Error
                     pb.visibility = View.INVISIBLE
                 }
